@@ -1,17 +1,23 @@
 const router = require('express').Router();
+const config = require('config');
+const jwt = require('jsonwebtoken');
 let Player = require('../models/player.model');
 let Match = require('../models/match.model');
+let Bet = require('../models/bet.model');
+let Duel = require('../models/duel.model');
+let Challenge = require('../models/challenge.model');
+
 
 router.route('/').get((req, res) => {
     Player.find()
         .then(Players => res.json(Players))
-        .catch(err => res.status(400).jsen('Error: ' + err));
+        .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/:id').get((req, res) => {
-    Player.find({ username: req.params.id })
+    Player.find({ username: req.params.id }).populate('challenge')
         .then(Player => res.json(Player))
-        .catch(err => res.status(400).jsen('Error: ' + err))
+        .catch(err => res.status(400).json('Error: ' + err))
 });
 
 router.route('/delete/:id').delete((req, res) => {
@@ -22,7 +28,7 @@ router.route('/delete/:id').delete((req, res) => {
 
 router.route('/add').post((req, res) => {
     const { body } = req;
-    let { username, password } = body;
+    let { username, password, coins } = body;
 
     if (!username) {
         return res.send({
@@ -53,32 +59,86 @@ router.route('/add').post((req, res) => {
 
         newPlayer.username = username;
         newPlayer.password = newPlayer.generateHash(password);
-        newPlayer.save((err, user) => {
-            if (err) {
-                return res.send({
-                    succes: false,
-                    message: 'Error: Server error'
-                });
-            }
-            return res.send({
-                succes: true,
-                message: 'Signed up'
-            });
+        if (coins !== null || coins !== undefined) {
+            newPlayer.coins = coins;
+        }
+        newPlayer.save().then(player => {
+            jwt.sign(
+                { id: newPlayer._id },
+                config.get("jwtSecret"),
+                { expiresIn: 3600 },
+                (err, token) => {
+                    if (err) throw err;
+                    res.json({
+                        token,
+                        player: newPlayer
+                    });
+                }
+
+            )
         })
     })
 });
 
-router.route('/update/:id').put((req, res) => {
+router.route('/addBet/:id').post((req, res) => {
+    const { match, homeScore, awayScore, winner, betting } = req.body;
+
     Player.findById(req.params.id)
         .then(player => {
-            const bet = req.body.bet;
-            const newBet = new Match(bet.homeTeam, bet.awayTeam, bet.homeScore, bet.awayScore);
-            player.bet.push(newBet);
+            const bet = new Bet({
+                player: new Player(player), match: new Match(match),
+                homeScore, awayScore, winner, betting
+            });
 
-            player.save()
-                .then(() => res.json(player))
-                .catch(err => res.status(400).json('Error: ' + err));
+            player.coins = player.coins - betting;
+            player.bet.push(bet);
+
+            bet.save().then(b => {
+                player.save();
+                res.json(b);
+            }).catch(err => res.status(400).json('Error: ' + err));
         })
-})
+});
+
+
+router.route('/addDuel/:id').post((req, res) => {
+    const { opponent, match, homeScore, awayScore, betting, status } = req.body;
+
+    Player.findById(req.params.id)
+        .then(player => {
+            const player2 = new Player(opponent);
+
+            const challenger = new Challenge({
+                opponent: player2, homeScore, awayScore, betting, status
+            });
+            const challenged = new Challenge({
+                opponent: new Player(player), homeScore, awayScore, betting, status: "Received"
+            });
+
+            const duel = new Duel({ challenger, challenged, match: new Match(match) });
+
+            //player.duel.push(duel);
+            //player2.duel.push(duel);
+
+            duel.save().then(d => {
+                //player.save();
+                challenger.save();
+                challenged.save();
+                res.json(d);
+            }).catch(err => res.status(400).json('Error: ' + err));
+        })
+});
+
+router.route("/addDuelPlayer2/:id").post((req, res) => {
+    const { duel } = req.body;
+
+    Player.findById(req.params.id)
+    .then( player => {
+        
+        player.duel.push(new Duel(duel));
+
+        player.save().then(p => res.json(p));
+    })
+});
 
 module.exports = router;

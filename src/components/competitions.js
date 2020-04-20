@@ -151,6 +151,7 @@ class Competitions extends Component {
     }
 
     render() {
+        console.log("123")
         return (
             <div className="competitions-tabs">
                 <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>

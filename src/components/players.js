@@ -33,6 +33,7 @@ class Players extends Component {
         const playerIndex = this.state.players.findIndex(data => data.username === player.username);
         if (playerIndex === -1) {
             newArray = this.state.players;
+            console.log(newArray);
             newArray.push(player);
         } else {
             newArray = [
@@ -74,13 +75,14 @@ class Players extends Component {
         })
         return (
             <div>
+            <Button className="create" variant="dark" onClick={() => this.setState({ createPlayerShow: true })}>Create Player</Button>
                 <section className="projects-grid">
                     <div className="back">
                         {playersList}
                     </div>
                 </section>
-                <Button variant="dark" onClick={() => this.setState({ createPlayerShow: true})}>Create Player</Button>
-                <CreatePlayer show={this.state.createPlayerShow} onHide={createPlayerClose} />
+                <CreatePlayer show={this.state.createPlayerShow}
+                    onClose={player => this.updatePlayer(player)} onHide={createPlayerClose} />
             </div>
         )
     }

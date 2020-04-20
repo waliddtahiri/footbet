@@ -18,14 +18,22 @@ connection.once('open', () => {
 });
 
 const playerRouter = require('./routes/players');
+const authRouter = require('./routes/auth');
 const matchRouter = require('./routes/matches');
 const competitionRouter = require('./routes/competitions');
+const challengeRouter = require('./routes/challenges');
+const betRouter = require('./routes/bets');
+const duelRouter = require('./routes/duel');
 const signinRouter = require('./routes/signin');
 
 app.use('/players', playerRouter);
+app.use('/auth', authRouter);
 app.use('/matches', matchRouter);
 app.use('/competitions', competitionRouter);
+app.use('/bets', betRouter);
+app.use('/duels', duelRouter);
 app.use('/account', signinRouter);
+app.use('/challenges', challengeRouter);
 
 
 app.listen(port, () => {

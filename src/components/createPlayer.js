@@ -48,7 +48,7 @@ class CreatePlayer extends Component {
         console.log(player);
 
         axios.post('http://localhost:5000/players/add', player)
-             .then(res => console.log(res));
+             .then(res => this.props.onClose(res.data.player));
 
         this.props.onHide();
 
@@ -74,7 +74,7 @@ class CreatePlayer extends Component {
                                     required className="form-control" value={this.state.username}
                                     onChange={this.onChangeUsername} />
                                 <label>Password: </label>
-                                <input ref="âssword"
+                                <input ref="password"
                                     required className="form-control" value={this.state.password}
                                     onChange={this.onChangePassword} />
                                 <label>Coins: </label>

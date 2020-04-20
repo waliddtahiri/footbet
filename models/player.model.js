@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-let Match = require('../models/match.model');
+let Bet = require('../models/bet.model');
+let Duel = require('./challenge.model');
 
 const Schema = mongoose.Schema;
 
@@ -10,7 +11,7 @@ const playerSchema = new Schema({
     coins: { type: Number, default: 0 },
     bet: [{
         type: Schema.Types.ObjectId,
-        ref: 'Match'
+        ref: 'Bet'
     }]
 });
 

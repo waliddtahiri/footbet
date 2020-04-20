@@ -6,8 +6,8 @@ const Schema = mongoose.Schema;
 const matchSchema = new Schema({
     homeTeam: { type: String, required: true},
     awayTeam: { type: String, required: true},
-    homeScore: { type: String, required: true},
-    awayScore: { type: String, required: true},
+    homeScore: { type: String, required: false},
+    awayScore: { type: String, required: false},
     competition: {
         type: Schema.Types.ObjectId,
         ref: 'Competition',

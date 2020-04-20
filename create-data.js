@@ -6,13 +6,11 @@ const axios = require('axios');
 
 const MONGO_URL = 'mongodb+srv://walidfoot:walidfoot@cluster0-aksbw.gcp.mongodb.net/test?retryWrites=true&w=majority';
 
-const allCompetitionsAPI = ['SA', 'PD', 'PL', 'BL1', 'CL'];
-
 const matches = (competitionAPI) => {
     try {
         return axios({
             method: 'get',
-            url: `http://api.football-data.org/v2/competitions/${competitionAPI}/matches/?matchday=19`,
+            url: `http://api.football-data.org/v2/competitions/${competitionAPI}/matches/?matchday=22`,
             dataType: 'json',
             headers: { 'X-Auth-Token': '6466a049243a4bf289e2a209abfe620e' }
         })
@@ -36,7 +34,11 @@ const setCompetitionAndMatchs = async () => {
         const competitionBL = new Competition({ name: 'BundesLiga' });
         const competitionCL = new Competition({ name: 'Champions League' });
 
-        const joueur1 = new Player({ username: 'walid', password: 'walid', coins: '777777' });
+        const joueur1 = new Player();
+        joueur1.username = "walid";
+        joueur1.password = joueur1.generateHash("walid");
+        joueur1.coins = 777;
+
         let playersArray = [];
         playersArray.push(joueur1);
 
@@ -46,7 +48,7 @@ const setCompetitionAndMatchs = async () => {
             try {
                 matches(comp).then(async (res) => {
                     const matchCount = res.data.matches.length;
-                    const championnat = allCompetitions[i];
+                    const competition = allCompetitions[i];
                     let matchsArray = [];
 
                     for (let j = 0; j < matchCount; ++j) {
@@ -54,15 +56,14 @@ const setCompetitionAndMatchs = async () => {
                         const awayTeam = res.data.matches[j].awayTeam.name;
                         const homeScore = res.data.matches[j].score.fullTime.homeTeam;
                         const awayScore = res.data.matches[j].score.fullTime.awayTeam;
-                        const competition = new Competition(championnat);
 
                         const newMatch = new Match({ homeTeam, awayTeam, homeScore, awayScore, competition });
 
                         matchsArray.push(newMatch);
 
-                        championnat.matchs.push(newMatch);
+                        competition.matchs.push(newMatch);
                     }
-                    await championnat.save();
+                    await competition.save();
                     await Match.create(matchsArray);
                 })
             }
@@ -78,7 +79,8 @@ const setCompetitionAndMatchs = async () => {
 
         await Player.create(playersArray);
 
-        await Competition.insertMany([competitionSA, competitionLiga, competitionPL, competitionBL, competitionCL]);
+        await Competition.insertMany([competitionSA, competitionLiga, competitionPL,
+            competitionBL, competitionCL]);
 
     }
     catch (err) {

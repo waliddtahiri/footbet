@@ -18,7 +18,7 @@ class PostsList extends Component {
 
     render() {
         console.log(this.props);
-        let editPostClose = () => {this.setState({ editPostShow: false })}; 
+        let editPostClose = () => { this.setState({ editPostShow: false }) };
         const { posts, deleteMatch } = this.props;
         const matchsList = posts.map(post => {
             return (
@@ -32,7 +32,8 @@ class PostsList extends Component {
                                 onClick={() => this.setState({ editPostShow: true, match: post })} />
                         </span>
                     </p>
-                    <EditPost post={this.state.match} show={this.state.editPostShow} onClose={(match) => this.updatePost(posts, match)} onHide={editPostClose} />
+                    <EditPost post={this.state.match} show={this.state.editPostShow}
+                        onClose={(match) => this.updatePost(posts, match)} onHide={editPostClose} />
                 </div>
             )
         })
