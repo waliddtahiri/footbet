@@ -10,7 +10,19 @@ router.route('/').get((req, res) => {
 });
 
 router.route('/:id').get((req, res) => {
+    Duel.findById(req.params.id).populate('match').populate('challenger').populate('challenged')
+        .then(duel => res.json(duel))
+        .catch(err => res.status(400).json('Error: ' + err));
+});
+
+router.route('/challenger/:id').get((req, res) => {
     Duel.findById(req.params.id).populate('challenger')
+        .then(duel => res.json(duel))
+        .catch(err => res.status(400).json('Error: ' + err));
+});
+
+router.route('/challenged/:id').get((req, res) => {
+    Duel.findById(req.params.id).populate('challenged')
         .then(duel => res.json(duel))
         .catch(err => res.status(400).json('Error: ' + err));
 });

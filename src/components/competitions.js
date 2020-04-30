@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
+import Button from 'react-bootstrap/Button'
 import { Tabs, Tab } from 'react-mdl';
 import axios from 'axios';
 import './styles.css';
@@ -13,9 +16,13 @@ let BL = [];
 class Competitions extends Component {
     constructor(props) {
         super(props);
-        this.state = { activeTab: 0, postsSA: [], postsLiga: [], postsPL: [], postsBL: [] };
+        this.state = {
+            activeTab: 0, postsSA: [], postsLiga: [], postsPL: [], postsBL: [], selectedIndex: 'Journée 1',
+            allMatchesSA: [], allMatchesLiga: [], allMatchesPL: [], allMatchesBL: []
+        };
         this.deleteMatch = this.deleteMatch.bind(this);
         this.updateMatch = this.updateMatch.bind(this);
+        this.updateIndex = this.updateIndex.bind(this);
     }
 
     async componentDidMount() {
@@ -40,6 +47,46 @@ class Competitions extends Component {
                 BL.push(...res.data);
             })
         this.setState({
+            allMatchesSA: SA,
+            allMatchesLiga: Liga,
+            allMatchesPL: PL,
+            allMatchesBL: BL
+        })
+        this.setPosts(1);
+    }
+
+    setPosts(day) {
+        let SA = [];
+        let Liga = [];
+        let PL = [];
+        let BL = []
+
+        this.state.allMatchesSA.forEach(match => {
+            if (match.matchday == day) {
+                SA.push(match);
+            }
+        });
+
+        this.state.allMatchesLiga.forEach(match => {
+            if (match.matchday == day) {
+                Liga.push(match);
+            }
+        });
+
+        this.state.allMatchesPL.forEach(match => {
+            if (match.matchday == day) {
+                PL.push(match);
+            }
+        });
+
+        this.state.allMatchesBL.forEach(match => {
+            if (match.matchday == day) {
+                BL.push(match);
+            }
+        });
+
+
+        this.setState({
             postsSA: SA,
             postsLiga: Liga,
             postsPL: PL,
@@ -47,25 +94,121 @@ class Competitions extends Component {
         })
     }
 
+    updateIndex(selectedIndex) {
+        this.setState({ selectedIndex })
+    }
+
+    async updateScores() {
+        let SA = [];
+        let PD = [];
+        let PL = [];
+        let BL1 = [];
+
+        const competitions = ['SA', 'PD', 'PL', 'BL1'];
+        const competitionsArray = [SA, PD, PL, BL1];
+
+        const { postsSA, postsLiga, postsPL, postsBL } = this.state;
+
+        const posts = [postsSA, postsLiga, postsPL, postsBL];
+
+        for (let i = 0; i < competitions.length; ++i) {
+            await axios({
+                method: 'get',
+                url: `http://api.football-data.org/v2/competitions/${competitions[i]}/matches/?matchday=`
+                    + this.state.selectedIndex.split("Journée ")[1],
+                dataType: 'json',
+                headers: { 'X-Auth-Token': '6466a049243a4bf289e2a209abfe620e' }
+            }).then(res => {
+                competitionsArray[i].push(...res.data.matches);
+            })
+
+            competitionsArray[i].forEach(match => {
+                posts[i].forEach(async (m) => {
+                    if (match.homeTeam.name == m.homeTeam && match.awayTeam.name == m.awayTeam) {
+                        m.homeScore = match.score.fullTime.homeTeam;
+                        m.awayScore = match.score.fullTime.awayTeam;
+                        m.winner = match.score.winner;
+                        await axios.put('http://localhost:5000/matches/update/' + m._id, m)
+                    }
+                })
+            })
+        }
+
+        this.setState({
+            postsSA, postsLiga, postsPL, postsBL
+        })
+    }
+
     toggleCategories() {
+        const options = [];
+        for (let i = 0; i < 20; ++i) {
+            options.push('Journée ' + (i + 1));
+        }
+        const { selectedIndex } = this.state;
         if (this.state.activeTab === 0) {
             return (
-                <div className="back"><PostsList posts={this.state.postsSA} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch}/></div>
+                <div>
+                    <div className="choose">
+                        <Dropdown options={options} onChange={async (day) => {
+                            await this.setState({ selectedIndex: day.value });
+                            this.setPosts(this.state.selectedIndex.split("Journée ")[1]);
+                        }}
+                            value={selectedIndex} placeholder="Select an option" />
+                        <Button className="create" variant="dark"
+                            onClick={() => this.updateScores()}>Update scores</Button>
+                    </div>
+                    <div className="back">
+                        <PostsList posts={this.state.postsSA} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch} />
+                    </div>
+                </div>
             )
         }
         if (this.state.activeTab === 1) {
             return (
-                <div className="back"><PostsList posts={this.state.postsLiga} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch}/></div>
+                <div>
+                    <div className="choose">
+                        <Dropdown options={options} onChange={async (day) => {
+                            await this.setState({ selectedIndex: day.value });
+                            this.setPosts(this.state.selectedIndex.split("Journée ")[1]);
+                        }}
+                            value={selectedIndex} placeholder="Select an option" />
+                        <Button className="create" variant="dark"
+                            onClick={() => this.updateScores()}>Update scores</Button>
+                    </div>
+                    <div className="back"><PostsList posts={this.state.postsLiga} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch} /></div>
+                </div>
             )
         }
         if (this.state.activeTab === 2) {
             return (
-                <div className="back"><PostsList posts={this.state.postsPL} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch}/></div>
+                <div>
+                    <div className="choose">
+                        <Dropdown options={options} onChange={async (day) => {
+                            await this.setState({ selectedIndex: day.value });
+                            this.setPosts(this.state.selectedIndex.split("Journée ")[1]);
+                        }}
+                            value={selectedIndex} placeholder="Select an option" />
+                        <Button className="create" variant="dark"
+                            onClick={() => this.updateScores()}>Update scores</Button>
+                    </div>
+                    <div className="back"><PostsList posts={this.state.postsPL} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch} /></div>
+                </div>
             )
         }
         if (this.state.activeTab === 3) {
             return (
-                <div className="back"><PostsList posts={this.state.postsBL} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch}/></div>
+                <div>
+                    <div className="choose">
+                        <Dropdown options={options} onChange={async (day) => {
+                            await this.setState({ selectedIndex: day.value });
+                            this.setPosts(this.state.selectedIndex.split("Journée ")[1]);
+                        }}
+                            value={selectedIndex} placeholder="Select an option" />
+                        <Button className="create" variant="dark"
+                            onClick={() => this.updateScores()}>Update scores</Button>
+                    </div>
+                    <div className="back"><PostsList posts={this.state.postsBL} deleteMatch={this.deleteMatch} updateMatch={this.updateMatch} /></div>
+                </div>
             )
         }
     }
@@ -151,7 +294,6 @@ class Competitions extends Component {
     }
 
     render() {
-        console.log("123")
         return (
             <div className="competitions-tabs">
                 <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>

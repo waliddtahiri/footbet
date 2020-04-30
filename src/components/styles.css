@@ -30,3 +30,14 @@
     margin: 0 5px;
     font-size: 15px;
 }
+.choose {
+    position: absolute;
+    left: 250px;
+    justify-content: space-between;
+}
+.createDiv {
+    position: absolute;
+    left: 250px;
+    top: 250px;
+    justify-content: space-between;
+}

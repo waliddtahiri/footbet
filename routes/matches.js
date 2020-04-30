@@ -4,13 +4,13 @@ let Match = require('../models/match.model');
 router.route('/').get((req, res) => {
     Match.find()
         .then(matches => res.json(matches))
-        .catch(err => res.status(400).jsen('Error: ' + err));
+        .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/:id').get((req, res) => {
     Match.findById(req.params.id)
         .then(match => res.json(match))
-        .catch(err => res.status(400).jsen('Error: ' + err))
+        .catch(err => res.status(400).json('Error: ' + err))
 });
 
 router.route('/:id').delete((req, res) => {
@@ -24,6 +24,7 @@ router.route('/update/:id').put((req, res) => {
         .then(match => {
             match.homeScore = req.body.homeScore;
             match.awayScore = req.body.awayScore;
+            match.winner = req.body.winner;
 
             match.save()
                 .then(() => res.json(match))

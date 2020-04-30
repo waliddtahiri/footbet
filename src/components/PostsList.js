@@ -17,7 +17,6 @@ class PostsList extends Component {
     }
 
     render() {
-        console.log(this.props);
         let editPostClose = () => { this.setState({ editPostShow: false }) };
         const { posts, deleteMatch } = this.props;
         const matchsList = posts.map(post => {

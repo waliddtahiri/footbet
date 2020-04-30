@@ -6,11 +6,11 @@ const axios = require('axios');
 
 const MONGO_URL = 'mongodb+srv://walidfoot:walidfoot@cluster0-aksbw.gcp.mongodb.net/test?retryWrites=true&w=majority';
 
-const matches = (competitionAPI) => {
+const matches = (competitionAPI, matchday) => {
     try {
         return axios({
             method: 'get',
-            url: `http://api.football-data.org/v2/competitions/${competitionAPI}/matches/?matchday=22`,
+            url: `http://api.football-data.org/v2/competitions/${competitionAPI}/matches/?matchday=` + matchday,
             dataType: 'json',
             headers: { 'X-Auth-Token': '6466a049243a4bf289e2a209abfe620e' }
         })
@@ -46,26 +46,32 @@ const setCompetitionAndMatchs = async () => {
 
         const setMatches = async (comp, i) => {
             try {
-                matches(comp).then(async (res) => {
-                    const matchCount = res.data.matches.length;
-                    const competition = allCompetitions[i];
-                    let matchsArray = [];
+                for (let m = 1; m <= 5; m++) {
+                    matches(comp, m).then(async (res) => {
+                        const matchCount = res.data.matches.length;
+                        const competition = allCompetitions[i];
+                        let matchsArray = [];
 
-                    for (let j = 0; j < matchCount; ++j) {
-                        const homeTeam = res.data.matches[j].homeTeam.name;
-                        const awayTeam = res.data.matches[j].awayTeam.name;
-                        const homeScore = res.data.matches[j].score.fullTime.homeTeam;
-                        const awayScore = res.data.matches[j].score.fullTime.awayTeam;
+                        for (let j = 0; j < matchCount; ++j) {
+                            const homeTeam = res.data.matches[j].homeTeam.name;
+                            const awayTeam = res.data.matches[j].awayTeam.name;
+                            const homeScore = res.data.matches[j].score.fullTime.homeTeam;
+                            const awayScore = res.data.matches[j].score.fullTime.awayTeam;
 
-                        const newMatch = new Match({ homeTeam, awayTeam, homeScore, awayScore, competition });
+                            const newMatch = new Match({
+                                homeTeam, awayTeam, homeScore: 0,
+                                awayScore: 0, competition, matchday: m, winner: 'unknown'
+                            });
 
-                        matchsArray.push(newMatch);
+                            matchsArray.push(newMatch);
 
-                        competition.matchs.push(newMatch);
-                    }
-                    await competition.save();
-                    await Match.create(matchsArray);
-                })
+                            competition.matchs.push(newMatch);
+
+                            await newMatch.save();
+                        }
+                    })
+                }
+                await competition.save();
             }
             catch (err) {
                 return `ERROR: ${err}`;

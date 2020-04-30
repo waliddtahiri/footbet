@@ -3,14 +3,27 @@ let Challenge = require('../models/challenge.model');
 
 router.route('/').get((req, res) => {
     Challenge.find()
-        .then(duels => res.json(duels))
-        .catch(err => res.status(400).jsen('Error: ' + err));
+        .then(challenges => res.json(challenges))
+        .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/:id').get((req, res) => {
-    Challenge.findById(req.params.id).populate('challenger', 'opponent')
-        .then(duel => res.json(duel))
-        .catch(err => res.status(400).jsen('Error: ' + err));
+    Challenge.findById(req.params.id)
+        .then(challenge => res.json(challenge))
+        .catch(err => res.status(400).json('Error: ' + err));
 });
+
+router.route('/update/:id').post((req, res) => {
+    Challenge.findById(req.params.id)
+        .then(challenge => {
+            challenge.homeScore = req.body.homeScore;
+            challenge.awayScore = req.body.awayScore;
+            challenge.status = "Accepted";
+
+            challenge.save()
+                .then(() => res.json(challenge))
+                .catch(err => res.status(400).json('Error: ' + err));
+        })
+})
 
 module.exports = router;

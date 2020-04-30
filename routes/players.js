@@ -15,8 +15,13 @@ router.route('/').get((req, res) => {
 });
 
 router.route('/:id').get((req, res) => {
-    Player.find({ username: req.params.id }).populate('challenge')
+    Player.find({ username: req.params.id }).populate('bet')
         .then(Player => res.json(Player))
+        .catch(err => res.status(400).json('Error: ' + err))
+});
+
+router.route('/player/:id').get((req, res) => {
+    Player.findById(req.params.id).then(Player => res.json(Player))
         .catch(err => res.status(400).json('Error: ' + err))
 });
 
@@ -112,7 +117,7 @@ router.route('/addDuel/:id').post((req, res) => {
                 opponent: player2, homeScore, awayScore, betting, status
             });
             const challenged = new Challenge({
-                opponent: new Player(player), homeScore, awayScore, betting, status: "Received"
+                opponent: new Player(player), homeScore: 0, awayScore: 0, betting, status: "Received"
             });
 
             const duel = new Duel({ challenger, challenged, match: new Match(match) });
@@ -133,12 +138,12 @@ router.route("/addDuelPlayer2/:id").post((req, res) => {
     const { duel } = req.body;
 
     Player.findById(req.params.id)
-    .then( player => {
-        
-        player.duel.push(new Duel(duel));
+        .then(player => {
 
-        player.save().then(p => res.json(p));
-    })
+            player.duel.push(new Duel(duel));
+
+            player.save().then(p => res.json(p));
+        })
 });
 
 module.exports = router;

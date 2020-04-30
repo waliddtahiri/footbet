@@ -6,19 +6,13 @@ let Player = require('../models/player.model');
 router.route('/').get((req, res) => {
     Bet.find()
         .then(bets => res.json(bets))
-        .catch(err => res.status(400).jsen('Error: ' + err));
+        .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/:id').get((req, res) => {
     Bet.findById(req.params.id).populate('match')
         .then(bet => res.json(bet))
         .catch(err => res.status(400).json('Error: ' + err))
-});
-
-router.route('/:id').get((req, res) => {
-    Bet.find({ numero: req.params.id }).populate('player', 'match', 'homeTeam', 'awayTeam', 'numero')
-        .then(bet => res.json(bet))
-        .catch(err => res.status(400).jsen('Error: ' + err))
 });
 
 router.route('/add').post((req, res) => {

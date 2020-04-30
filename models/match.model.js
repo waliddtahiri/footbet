@@ -12,7 +12,9 @@ const matchSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Competition',
         required: false
-    }
+    },
+    matchday: { type: Number, required: false},
+    winner: { type: String, required: false}
 })
 
 

@@ -75,7 +75,9 @@ class Players extends Component {
         })
         return (
             <div>
-            <Button className="create" variant="dark" onClick={() => this.setState({ createPlayerShow: true })}>Create Player</Button>
+                <div className="createDiv">
+                    <Button className="create" variant="dark" onClick={() => this.setState({ createPlayerShow: true })}>Create Player</Button>
+                </div>
                 <section className="projects-grid">
                     <div className="back">
                         {playersList}
