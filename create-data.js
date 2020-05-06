@@ -39,8 +39,14 @@ const setCompetitionAndMatchs = async () => {
         joueur1.password = joueur1.generateHash("walid");
         joueur1.coins = 777;
 
-        let playersArray = [];
-        playersArray.push(joueur1);
+        await joueur1.save();
+
+        const joueur2 = new Player();
+        joueur2.username = "tony";
+        joueur2.password = joueur1.generateHash("tony");
+        joueur2.coins = 99999999;
+
+        await joueur2.save();
 
         const allCompetitions = [competitionSA, competitionLiga, competitionPL, competitionBL];
 
@@ -82,8 +88,6 @@ const setCompetitionAndMatchs = async () => {
         await setMatches('PD', 1);
         await setMatches('PL', 2);
         await setMatches('BL1', 3);
-
-        await Player.create(playersArray);
 
         await Competition.insertMany([competitionSA, competitionLiga, competitionPL,
             competitionBL, competitionCL]);

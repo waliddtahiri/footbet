@@ -20,13 +20,11 @@ const duelSchema = new Schema({
         ref: 'Match',
         required: true
     },
-    winner: {
-        type: Schema.Types.ObjectId,
-        ref: 'Player'
-    }
+    winner: { type: String, default: "unknown" }
 })
 
 
 const Duel = mongoose.model('Duel', duelSchema);
+
 
 module.exports = Duel;

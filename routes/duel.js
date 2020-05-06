@@ -27,4 +27,15 @@ router.route('/challenged/:id').get((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
+router.route('/update/:id').put((req, res) => {
+    Duel.findById(req.params.id)
+        .then(duel => {
+            duel.winner = req.body.winner;
+
+            duel.save()
+                .then(() => res.json(duel))
+                .catch(err => res.status(400).json('Error: ' + err));
+        })
+});
+
 module.exports = router;

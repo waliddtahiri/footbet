@@ -10,8 +10,8 @@ let Match = require('../models/match.model');
 
 router.get('/player', auth, (req, res) => {
     Player.findById(req.player.id)
-    .select('-password')
-    .then(player => res.json(player));
+        .select('-password')
+        .then(player => res.json(player));
 });
 
 router.route('/:id').get((req, res) => {
@@ -26,36 +26,74 @@ router.route('/delete/:id').delete((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.post('/', (req, res) => {
+router.post('/signup', (req, res) => {
     const { body } = req;
     let { username, password } = body;
 
-    if(!username || !password) {
-        return res.status(400).json({ msg: 'Please enter all fields'});
+    if (!username || !password) {
+        return res.status(400).json({ msg: 'Please enter all fields' });
     }
 
     Player.findOne({ username })
-    .then(player => {
-        if (!player) return res.status(400).json({ msg: 'User does not exist'});
+        .then(player => {
+            if (player) return res.status(400).json({ msg: 'User already exists' });
 
-        bcrypt.compare(password, player.password)
-        .then(isMatch => {
-            if(!isMatch) return res.status(400).json({ msg : 'Invalid credentials'});
+            const newPlayer = new Player({
+                username,
+                password
+            });
 
-            jwt.sign(
-                { id: player._id },
-                config.get("jwtSecret"),
-                { expiresIn: 3600 },
-                (err, token) => {
-                    if (err) throw err;
-                    res.json({
-                        token,
-                        player
-                    });
-                }
-            )
+            newPlayer.password = newPlayer.generateHash(password);
+            newPlayer.save().then( player => {
+                jwt.sign(
+                    { id: player._id },
+                    config.get("jwtSecret"),
+                    { expiresIn: 3600 },
+                    (err, token) => {
+                        if (err) throw err;
+                        res.json({
+                            token,
+                            player: {
+                                id: player._id,
+                                username: player.username
+                            }
+                        });
+                    }
+                )
+            })
         })
-    })
+});
+
+router.post('/login', (req, res) => {
+    const { body } = req;
+    let { username, password } = body;
+
+    if (!username || !password) {
+        return res.status(400).json({ msg: 'Please enter all fields' });
+    }
+
+    Player.findOne({ username })
+        .then(player => {
+            if (!player) return res.status(400).json({ msg: 'User does not exist' });
+
+            bcrypt.compare(password, player.password)
+                .then(isMatch => {
+                    if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
+
+                    jwt.sign(
+                        { id: player._id },
+                        config.get("jwtSecret"),
+                        { expiresIn: 3600 },
+                        (err, token) => {
+                            if (err) throw err;
+                            res.json({
+                                token,
+                                player
+                            });
+                        }
+                    )
+                })
+        })
 
 });
 

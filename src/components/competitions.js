@@ -46,6 +46,9 @@ class Competitions extends Component {
             .then(res => {
                 BL.push(...res.data);
             })
+        let duels = [];
+        await axios.get('http://localhost:5000/duels').then(res => duels.push(...res.data));
+
         this.setState({
             allMatchesSA: SA,
             allMatchesLiga: Liga,
@@ -53,6 +56,14 @@ class Competitions extends Component {
             allMatchesBL: BL
         })
         this.setPosts(1);
+
+        duels.forEach(async (duel) => {
+            let d = undefined;
+            await axios.get('http://localhost:5000/duels/' + duel._id).then(res => {
+                d = res.data;
+            });
+            console.log(d.challenger.opponent.username);
+        });
     }
 
     setPosts(day) {
@@ -103,6 +114,7 @@ class Competitions extends Component {
         let PD = [];
         let PL = [];
         let BL1 = [];
+        let duels = [];
 
         const competitions = ['SA', 'PD', 'PL', 'BL1'];
         const competitionsArray = [SA, PD, PL, BL1];
@@ -132,11 +144,78 @@ class Competitions extends Component {
                     }
                 })
             })
-        }
 
-        this.setState({
-            postsSA, postsLiga, postsPL, postsBL
-        })
+            this.setState({
+                postsSA, postsLiga, postsPL, postsBL
+            })
+
+            await axios.get('http://localhost:5000/duels').then(res => duels.push(...res.data));
+
+            duels.forEach(async (duel) => {
+                let d = undefined;
+                let player1 = undefined;
+                let player2 = undefined;
+                let challenger = undefined;
+                let challenged = undefined;
+
+                await axios.get('http://localhost:5000/duels/' + duel._id).then(res => {
+                    d = res.data
+                });
+                await axios.get('http://localhost:5000/challenges/' + d.challenger._id).then(res => {
+                    challenger = res.data
+                });
+                await axios.get('http://localhost:5000/challenges/' + d.challenged._id).then(res => {
+                    challenged = res.data
+                });
+                await axios.get('http://localhost:5000/players/player/' + challenged.opponent).then(res => {
+                    player1 = res.data
+                });
+                await axios.get('http://localhost:5000/players/player/cd' + challenger.opponent).then(res => {
+                    player2 = res.data
+                });
+
+                let diffChallenger = Math.abs(d.challenger.homeScore - d.challenger.awayScore);
+                let diffChallenged = Math.abs(d.challenged.homeScore - d.challenged.awayScore);
+                let diffMatch = Math.abs(d.match.homeScore - d.match.awayScore);
+
+                console.log(diffChallenger);
+                console.log(diffChallenged);
+                console.log(player2);
+
+                if (d.challenger.homeScore == d.match.homeScore && d.challenger.awayScore == d.match.awayScore) {
+                    d.winner = player1.username;
+                } else if (d.challenged.homeScore == d.match.homeScore && d.challenged.awayScore == d.match.awayScore) {
+                    d.winner = player2.username;
+                }
+
+                if (diffChallenger == diffMatch || diffChallenged == diffMatch) {
+                    if (diffChallenger == diffMatch && diffChallenged != diffMatch) {
+                        d.winner = player1.username;
+                    } else if (diffChallenged == diffMatch && diffChallenger != diffMatch) {
+                        d.winner = player2.username;
+                    }
+                }
+
+                if (diffChallenger != diffMatch && diffChallenged != diffMatch) {
+                    if (Math.abs(diffMatch - diffChallenger) < Math.abs(diffMatch - diffChallenger)) {
+                        d.winner = player1.username;
+                    } else if (Math.abs(diffMatch - diffChallenger) > Math.abs(diffMatch - diffChallenger)) {
+                        d.winner = player2.username;
+                    } else {
+                        if (Math.abs(d.challenger.homeScore - d.match.homeScore) <
+                            Math.abs(d.challenged.homeScore - d.match.homeScore)) {
+                            d.winner = player1.username;
+                        } else if (Math.abs(d.challenged.homeScore - d.match.homeScore) <
+                            Math.abs(d.challenger.homeScore - d.match.homeScore)) {
+                            d.winner = player2.username;
+                        } else {
+                            d.winner = "DRAW"
+                        }
+                    }
+                }
+                await axios.put('http://localhost:5000/duels/update/' + duel._id, d);
+            })
+        }
     }
 
     toggleCategories() {
