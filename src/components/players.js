@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import CreatePlayer from './createPlayer';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button'
 
 let players = [];
 
-class Players extends Component {
+class Players extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -26,6 +26,7 @@ class Players extends Component {
         this.setState({
             players: players
         })
+        players = [];
     }
 
     updatePlayer(player) {

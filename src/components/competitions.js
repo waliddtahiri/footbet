@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import Button from 'react-bootstrap/Button'
@@ -13,7 +13,7 @@ let Liga = [];
 let PL = [];
 let BL = [];
 
-class Competitions extends Component {
+class Competitions extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -55,15 +55,14 @@ class Competitions extends Component {
             allMatchesPL: PL,
             allMatchesBL: BL
         })
+
         this.setPosts(1);
 
-        duels.forEach(async (duel) => {
-            let d = undefined;
-            await axios.get('http://localhost:5000/duels/' + duel._id).then(res => {
-                d = res.data;
-            });
-            console.log(d.challenger.opponent.username);
-        });
+        allCompetitions = [];
+        SA = [];
+        Liga = [];
+        PL = [];
+        BL = [];
     }
 
     setPosts(day) {
@@ -95,7 +94,6 @@ class Competitions extends Component {
                 BL.push(match);
             }
         });
-
 
         this.setState({
             postsSA: SA,
@@ -380,7 +378,6 @@ class Competitions extends Component {
                     <Tab>Liga</Tab>
                     <Tab>Premier League</Tab>
                     <Tab>BundesLiga</Tab>
-                    <Tab>Champions League</Tab>
                 </Tabs>
                 <section className="projects-grid">
                     {this.toggleCategories()}

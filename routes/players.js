@@ -113,6 +113,10 @@ router.route('/addDuel/:id').post((req, res) => {
         .then(player => {
             const player2 = new Player(opponent);
 
+            player.coins = player.coins - betting;
+
+            player.save();
+
             const challenger = new Challenge({
                 opponent: player2, homeScore, awayScore, betting, status
             });

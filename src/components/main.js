@@ -2,14 +2,14 @@ import React from 'react';
 
 import Competitions from './competitions';
 import Players from './players';
-import { Switch, Route } from 'react-router-dom';
+import { Router, Route } from 'react-router-dom';
 
 const Main = () => (
-    <Switch>
+    <Router>
         <Route exact path="/" />
         <Route path="/competitions" component={Competitions} />
         <Route path="/players" component={Players} />
-    </Switch>
+    </Router>
 )
 
 export default Main;

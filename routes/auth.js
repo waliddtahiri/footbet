@@ -40,7 +40,8 @@ router.post('/signup', (req, res) => {
 
             const newPlayer = new Player({
                 username,
-                password
+                password,
+                coins: 500
             });
 
             newPlayer.password = newPlayer.generateHash(password);
