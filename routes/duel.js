@@ -27,6 +27,12 @@ router.route('/challenged/:id').get((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
+router.route('/delete/:id').delete((req, res) => {
+    Duel.findByIdAndDelete(req.params.id)
+        .then(() => res.json('Duel deleted'))
+        .catch(err => res.status(400).json('Error: ' + err));
+});
+
 router.route('/update/:id').put((req, res) => {
     Duel.findById(req.params.id)
         .then(duel => {

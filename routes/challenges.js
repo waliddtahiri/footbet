@@ -26,4 +26,17 @@ router.route('/update/:id').put((req, res) => {
         })
 })
 
+router.route('/decline/:id').put((req, res) => {
+    Challenge.findById(req.params.id)
+        .then(challenge => {
+            challenge.homeScore = req.body.homeScore;
+            challenge.awayScore = req.body.awayScore;
+            challenge.status = "Declined";
+
+            challenge.save()
+                .then(() => res.json(challenge))
+                .catch(err => res.status(400).json('Error: ' + err));
+        })
+})
+
 module.exports = router;

@@ -85,6 +85,17 @@ router.route('/add').post((req, res) => {
     })
 });
 
+router.route('/update/:id').put((req, res) => {
+    Player.findById(req.params.id)
+        .then(player => {
+            player.coins = req.body.coins;
+
+            player.save()
+                .then(() => res.json(player))
+                .catch(err => res.status(400).json('Error: ' + err));
+        })
+});
+
 router.route('/addBet/:id').post((req, res) => {
     const { match, homeScore, awayScore, winner, betting } = req.body;
 
@@ -104,6 +115,13 @@ router.route('/addBet/:id').post((req, res) => {
             }).catch(err => res.status(400).json('Error: ' + err));
         })
 });
+
+router.route('/getBets/:id').get((req, res) => {
+    Player.findById(req.params.id).populate('bet')
+        .then(player => res.json(player.bet))
+        .catch(err => res.status(400).json('Error: ' + err));
+})
+
 
 
 router.route('/addDuel/:id').post((req, res) => {
