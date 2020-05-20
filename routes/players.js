@@ -35,57 +35,70 @@ router.route('/add').post((req, res) => {
     const { body } = req;
     let { username, password, coins } = body;
 
-    if (!username) {
-        return res.send({
-            success: false,
-            message: 'Error: Username cannot be blank.'
-        })
-    }
-    if (!password) {
-        return res.send({
-            success: false,
-            message: 'Error: Password cannot be blank.'
-        })
+    if (!username || !password) {
+        return res.status(400).json({ msg: 'Please enter all fields' });
     }
 
-    username = username.toLowerCase();
+    if(username.length < 5){
+        return res.status(400).json({ msg: 'Username must have 5 characters' });
+    }
 
-    Player.find({
-        username: username
-    }, (err, previousUsers) => {
-        if (err) {
-            return res.send('Error: Server error')
-        } else if (previousUsers.length > 0) {
-            return res.send('Error: Account already exists')
-        }
+    if(password.length < 5){
+        return res.status(400).json({ msg: 'Password must have 5 characters' });
+    }
 
-        //Save the new player
-        const newPlayer = new Player();
+    if (!coins) {
+        coins = 500
+    } else if (/\D/.test(coins)) {
+        return res.status(400).json({ msg: 'Please only enter numeric characters' });
+    } else if (coins > 9999999) {
+        return res.status(400).json({ msg: 'Please enter a value under 9999999' });
+    }
 
-        newPlayer.username = username;
-        newPlayer.password = newPlayer.generateHash(password);
-        if (coins !== null || coins !== undefined) {
-            newPlayer.coins = coins;
-        }
-        newPlayer.save().then(player => {
-            jwt.sign(
-                { id: newPlayer._id },
-                config.get("jwtSecret"),
-                { expiresIn: 3600 },
-                (err, token) => {
-                    if (err) throw err;
-                    res.json({
-                        token,
-                        player: newPlayer
-                    });
-                }
+    Player.findOne({ username })
+        .then(player => {
+            if (player) return res.status(400).json({ msg: 'User already exists' });
 
-            )
+            const newPlayer = new Player({
+                username,
+                password,
+                coins
+            });
+
+            newPlayer.password = newPlayer.generateHash(password);
+            newPlayer.save().then(player => {
+                jwt.sign(
+                    { id: player._id },
+                    config.get("jwtSecret"),
+                    { expiresIn: 3600 },
+                    (err, token) => {
+                        if (err) throw err;
+                        res.json({
+                            token,
+                            player
+                        });
+                    }
+                )
+            })
         })
-    })
 });
 
 router.route('/update/:id').put((req, res) => {
+    const { body } = req;
+    let { coins } = body;
+
+    if (/\D/.test(coins)) {
+        return res.send({
+            success: false,
+            message: 'Please only enter numeric characters'
+        })
+    }
+    if (coins > 9999999) {
+        return res.send({
+            success: false,
+            message: 'Please enter a value under 9999999'
+        })
+    }
     Player.findById(req.params.id)
         .then(player => {
             player.coins = req.body.coins;

@@ -41,3 +41,10 @@
     top: 250px;
     justify-content: space-between;
 }
+
+.coinsDiv {
+    position: absolute;
+    left: 250px;
+    top: 200px;
+    justify-content: space-between;
+}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
 class EditPost extends Component {
@@ -11,8 +11,9 @@ class EditPost extends Component {
         this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
-            homeScore: ' ',
-            awayScore: ' '
+            homeScore: '',
+            awayScore: '',
+            msg: null
         }
     }
 
@@ -38,14 +39,25 @@ class EditPost extends Component {
 
         if (this.props.post._id !== null) {
             axios.put('http://localhost:5000/matches/update/' + this.props.post._id, match)
-                .then(res => this.props.onClose(res.data));
-
-            this.props.onHide();
-
-            this.setState({
-                    homeScore: ' ',
-                    awayScore: ' '
-            })
+                .then(res => {
+                    this.props.onClose(res.data)
+                    this.setState({
+                        msg: null
+                    })
+                })
+                .catch(err => this.setState({
+                    msg: err.response.data.msg
+                }))
+                .then(() => {
+                    if (this.state.msg == null) {
+                        this.props.onHide();
+                        this.setState({
+                            homeScore: '',
+                            awayScore: '',
+                            msg: null
+                        })
+                    }
+                })
         }
     }
 
@@ -58,6 +70,7 @@ class EditPost extends Component {
                 <Modal.Body>
                     <div>
                         <form onSubmit={this.onSubmit}>
+                            <div className="errors">{this.state.msg ? <Alert variant='danger'>{this.state.msg}</Alert> : null}</div>
                             <div className="form-group">
                                 <label>Score Domicile: </label>
                                 <input ref="matchInput"

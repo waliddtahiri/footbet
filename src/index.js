@@ -7,9 +7,14 @@ import 'react-mdl/extra/material.css';
 import 'react-mdl/extra/material.js';
 import { BrowserRouter } from 'react-router-dom';
 
+import { Provider } from 'react-redux';
+import store from './store';
+
 ReactDOM.render(
     <BrowserRouter>
-        <App />
+        <Provider store={store}>
+            <App />
+        </Provider>
     </BrowserRouter>
     , document.getElementById('root'));
 

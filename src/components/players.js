@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import CreatePlayer from './createPlayer';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button'
 
 let players = [];
 
-class Players extends PureComponent {
+class Players extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -77,8 +77,11 @@ class Players extends PureComponent {
         return (
             <div>
                 <div className="createDiv">
-                    <Button className="create" variant="dark" onClick={() => this.setState({ createPlayerShow: true })}>Create Player</Button>
+                    <Button className="create" onClick={() => this.setState({ createPlayerShow: true })}>Create Player</Button>
                 </div>
+                {/* <div className="coinsDiv">
+                    <Button className="coins" onClick={() => this.setState({ createPlayerShow: true })}>Add 100 Coins</Button>
+                </div> */}
                 <section className="projects-grid">
                     <div className="back">
                         {playersList}

@@ -20,15 +20,28 @@ router.route('/:id').delete((req, res) => {
 });
 
 router.route('/update/:id').put((req, res) => {
+    const { body } = req;
+    let { homeScore, awayScore, winner } = body;
+
+    if (homeScore == null || homeScore == undefined || awayScore == null || awayScore == undefined) {
+        return res.status(400).json({ msg: 'Please enter all fields' });
+    }
+
+    if (/\D/.test(homeScore) || (/\D/.test(awayScore))) {
+        return res.status(400).json({ msg: 'Please only enter numeric characters' });
+    }
+    if (homeScore > 99 || awayScore > 99) {
+        return res.status(400).json({ msg: 'Please enter a score under 99' });
+    }
     Match.findById(req.params.id)
         .then(match => {
-            match.homeScore = req.body.homeScore;
-            match.awayScore = req.body.awayScore;
-            match.winner = req.body.winner;
+            match.homeScore = homeScore;
+            match.awayScore = awayScore;
+            match.winner = winner;
 
             match.save()
                 .then(() => res.json(match))
-                .catch(err => res.status(400).json('Error: ' + err));
+                .catch(err => res.status(400).json({ msg: 'Error: ' + err }));
         })
 })
 

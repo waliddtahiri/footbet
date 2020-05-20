@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import Button from 'react-bootstrap/Button'
@@ -13,7 +13,7 @@ let Liga = [];
 let PL = [];
 let BL = [];
 
-class Competitions extends PureComponent {
+class Competitions extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -57,17 +57,17 @@ class Competitions extends PureComponent {
         })
 
         let bets = [];
-        axios.get('http://localhost:5000/players/getBets/5eb70c44ededc82e6c864846')
-        .then(res => {
-            let pari = undefined;
-            res.data.forEach(async (bet) => {
-                await axios.get(`http://192.168.0.239:5000/bets/${bet._id}`).then(res => pari = res.data);
-                console.log(pari);
-                if (pari.match.winner === "unknown") {
-                    bets.push(pari);
-                }
-            })
-        })
+        // axios.get('http://localhost:5000/players/getBets/5eb70c44ededc82e6c864846')
+        // .then(res => {
+        //     let pari = undefined;
+        //     res.data.forEach(async (bet) => {
+        //         await axios.get(`http://192.168.0.239:5000/bets/${bet._id}`).then(res => pari = res.data);
+        //         console.log(pari);
+        //         if (pari.match.winner === "unknown") {
+        //             bets.push(pari);
+        //         }
+        //     })
+        // })
 
         this.setPosts(1);
 
@@ -152,101 +152,104 @@ class Competitions extends PureComponent {
                         m.awayScore = match.score.fullTime.awayTeam;
                         m.winner = match.score.winner;
                         await axios.put('http://localhost:5000/matches/update/' + m._id, m)
+                            .catch(err => console.log(err.response.data.msg))
+                        //console.log(m.homeTeam + " " + m.homeScore + "-" + m.awayScore + " " + m.awayTeam);
                     }
                 })
             })
-
             this.setState({
                 postsSA, postsLiga, postsPL, postsBL
             })
+        }
 
-            await axios.get('http://localhost:5000/duels').then(res => duels.push(...res.data));
+        await axios.get('http://localhost:5000/duels').then(res => duels.push(...res.data));
 
-            if (duels.length > 0) {
-                duels.forEach(async (duel) => {
-                    let d = undefined;
-                    let player1 = undefined;
-                    let player2 = undefined;
-                    let challenger = undefined;
-                    let challenged = undefined;
+        if (duels.length > 0) {
+            duels.forEach(async (duel) => {
+                console.log(duel);
+                let d = undefined;
+                let player1 = undefined;
+                let player2 = undefined;
+                let challenger = undefined;
+                let challenged = undefined;
 
-                    await axios.get('http://localhost:5000/duels/' + duel._id).then(res => {
-                        d = res.data
-                    });
-                    await axios.get('http://localhost:5000/challenges/' + d.challenger._id).then(res => {
-                        challenger = res.data
-                    });
-                    await axios.get('http://localhost:5000/challenges/' + d.challenged._id).then(res => {
-                        challenged = res.data
-                    });
-                    await axios.get('http://localhost:5000/players/player/' + challenged.opponent).then(res => {
-                        player1 = res.data
-                    });
-                    await axios.get('http://localhost:5000/players/player/' + challenger.opponent).then(res => {
-                        player2 = res.data
-                    });
+                await axios.get('http://localhost:5000/duels/' + duel._id).then(res => {
+                    d = res.data
+                });
+                await axios.get('http://localhost:5000/challenges/' + d.challenger._id).then(res => {
+                    challenger = res.data
+                });
+                await axios.get('http://localhost:5000/challenges/' + d.challenged._id).then(res => {
+                    challenged = res.data
+                });
+                await axios.get('http://localhost:5000/players/player/' + challenged.opponent).then(res => {
+                    player1 = res.data
+                });
+                await axios.get('http://localhost:5000/players/player/' + challenger.opponent).then(res => {
+                    player2 = res.data
+                });
 
-                    let diffChallenger = Math.abs(d.challenger.homeScore - d.challenger.awayScore);
-                    let diffChallenged = Math.abs(d.challenged.homeScore - d.challenged.awayScore);
-                    let diffMatch = Math.abs(d.match.homeScore - d.match.awayScore);
+                let diffChallenger = Math.abs(d.challenger.homeScore - d.challenger.awayScore);
+                let diffChallenged = Math.abs(d.challenged.homeScore - d.challenged.awayScore);
+                let diffMatch = Math.abs(d.match.homeScore - d.match.awayScore);
 
-                    console.log(diffChallenger);
-                    console.log(diffChallenged);
-                    console.log(challenged);
+                console.log(diffChallenger);
+                console.log(diffChallenged);
+                console.log(challenged);
 
-                    if (challenged.status == "Accepted") {
-                        if (d.challenger.homeScore == d.match.homeScore && d.challenger.awayScore == d.match.awayScore) {
+                if (challenged.status != "Accepted") {
+                    player1.coins = player1.coins + challenger.betting;
+                    await axios.delete('http://localhost:5000/duels/delete/' + duel._id);
+                    await axios.put('http://localhost:5000/players/update/' + player1._id, player1);
+                } else {
+                    if (d.challenger.homeScore == d.match.homeScore && d.challenger.awayScore == d.match.awayScore) {
+                        d.winner = player1.username;
+                        player1.coins = player1.coins + d.challenger.betting * 2
+                    } else if (d.challenged.homeScore == d.match.homeScore && d.challenged.awayScore == d.match.awayScore) {
+                        d.winner = player2.username;
+                        player2.coins = player2.coins + d.challenged.betting * 2
+                    }
+
+                    if (diffChallenger == diffMatch || diffChallenged == diffMatch) {
+                        if (diffChallenger == diffMatch && diffChallenged != diffMatch) {
                             d.winner = player1.username;
                             player1.coins = player1.coins + d.challenger.betting * 2
-                        } else if (d.challenged.homeScore == d.match.homeScore && d.challenged.awayScore == d.match.awayScore) {
+                        } else if (diffChallenged == diffMatch && diffChallenger != diffMatch) {
                             d.winner = player2.username;
                             player2.coins = player2.coins + d.challenged.betting * 2
                         }
+                    }
 
-                        if (diffChallenger == diffMatch || diffChallenged == diffMatch) {
-                            if (diffChallenger == diffMatch && diffChallenged != diffMatch) {
-                                d.winner = player1.username;
-                                player1.coins = player1.coins + d.challenger.betting * 2
-                            } else if (diffChallenged == diffMatch && diffChallenger != diffMatch) {
-                                d.winner = player2.username;
-                                player2.coins = player2.coins + d.challenged.betting * 2
-                            }
-                        }
-
-                        if (diffChallenger != diffMatch && diffChallenged != diffMatch) {
-                            if (Math.abs(diffMatch - diffChallenger) < Math.abs(diffMatch - diffChallenger)) {
+                    if (diffChallenger != diffMatch && diffChallenged != diffMatch) {
+                        if (Math.abs(diffMatch - diffChallenger) < Math.abs(diffMatch - diffChallenger)) {
+                            d.winner = player1.username;
+                            player1.coins = player1.coins + challenger.betting * 2
+                        } else if (Math.abs(diffMatch - diffChallenger) > Math.abs(diffMatch - diffChallenger)) {
+                            d.winner = player2.username;
+                            player2.coins = player2.coins + challenged.betting * 2
+                        } else {
+                            if (Math.abs(d.challenger.homeScore - d.match.homeScore) <
+                                Math.abs(d.challenged.homeScore - d.match.homeScore)) {
                                 d.winner = player1.username;
                                 player1.coins = player1.coins + challenger.betting * 2
-                            } else if (Math.abs(diffMatch - diffChallenger) > Math.abs(diffMatch - diffChallenger)) {
+                            } else if (Math.abs(d.challenged.homeScore - d.match.homeScore) <
+                                Math.abs(d.challenger.homeScore - d.match.homeScore)) {
                                 d.winner = player2.username;
                                 player2.coins = player2.coins + challenged.betting * 2
                             } else {
-                                if (Math.abs(d.challenger.homeScore - d.match.homeScore) <
-                                    Math.abs(d.challenged.homeScore - d.match.homeScore)) {
-                                    d.winner = player1.username;
-                                    player1.coins = player1.coins + challenger.betting * 2
-                                } else if (Math.abs(d.challenged.homeScore - d.match.homeScore) <
-                                    Math.abs(d.challenger.homeScore - d.match.homeScore)) {
-                                    d.winner = player2.username;
-                                    player2.coins = player2.coins + challenged.betting * 2
-                                } else {
-                                    d.winner = "DRAW"
-                                    player1.coins = player1.coins + challenger.betting
-                                    player2.coins = player1.coins + challenger.betting
-                                }
+                                d.winner = "DRAW"
+                                player1.coins = player1.coins + challenger.betting
+                                player2.coins = player1.coins + challenger.betting
                             }
                         }
-                        await axios.put('http://localhost:5000/duels/update/' + duel._id, d);
-                        await axios.put('http://localhost:5000/players/update/' + player1._id, player1);
-                        await axios.put('http://localhost:5000/players/update/' + player2._id, player1);
-                    } else {
-                        player1.coins = player1.coins + challenger.betting;
-                        await axios.delete('http://localhost:5000/duels/delete/' + duel._id);
-                        await axios.put('http://localhost:5000/players/update/' + player1._id, player1);
                     }
-                })
-            }
+                    await axios.put('http://localhost:5000/duels/update/' + duel._id, d);
+                    await axios.put('http://localhost:5000/players/update/' + player1._id, player1);
+                    await axios.put('http://localhost:5000/players/update/' + player2._id, player1);
+                }
+            })
         }
+        console.log("Scores Updated")
     }
 
     toggleCategories() {

@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal, ModalBody, Alert } from 'react-bootstrap';
 import axios from 'axios';
+
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 class CreatePlayer extends Component {
     constructor(props) {
+
         super(props);
 
         this.onChangeUsername = this.onChangeUsername.bind(this);
@@ -14,9 +18,12 @@ class CreatePlayer extends Component {
         this.state = {
             username: '',
             password: '',
-            coins: ''
+            coins: '',
+            msg: null
         }
+
     }
+
 
     onChangeUsername(e) {
         this.setState({
@@ -48,15 +55,26 @@ class CreatePlayer extends Component {
         console.log(player);
 
         axios.post('http://localhost:5000/players/add', player)
-             .then(res => this.props.onClose(res.data.player));
-
-        this.props.onHide();
-
-        this.setState({
-            username: '',
-            password: '',
-            coins: ''
-        })
+            .then(res => {
+                this.props.onClose(res.data.player)
+                this.setState({
+                    msg: null
+                })
+            })
+            .catch(err => this.setState({
+                msg: err.response.data.msg
+            }))
+            .then(() => {
+                if (this.state.msg == null) {
+                    this.props.onHide();
+                    this.setState({
+                        username: '',
+                        password: '',
+                        coins: '',
+                        msg: null
+                    })
+                }
+            })      
     }
 
     render() {
@@ -68,6 +86,7 @@ class CreatePlayer extends Component {
                 <Modal.Body>
                     <div>
                         <form onSubmit={this.onSubmit}>
+                            <div className="errors">{this.state.msg ? <Alert variant='danger'>{this.state.msg}</Alert> : null}</div>
                             <div className="form-group">
                                 <label>Username: </label>
                                 <input ref="username"
@@ -92,5 +111,6 @@ class CreatePlayer extends Component {
         )
     }
 }
+
 
 export default CreatePlayer;

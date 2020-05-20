@@ -34,6 +34,14 @@ router.post('/signup', (req, res) => {
         return res.status(400).json({ msg: 'Please enter all fields' });
     }
 
+    if(username.length < 5){
+        return res.status(400).json({ msg: 'Username must have 5 characters' });
+    }
+
+    if(password.length < 5){
+        return res.status(400).json({ msg: 'Password must have 5 characters' });
+    }
+
     Player.findOne({ username })
         .then(player => {
             if (player) return res.status(400).json({ msg: 'User already exists' });
@@ -54,10 +62,7 @@ router.post('/signup', (req, res) => {
                         if (err) throw err;
                         res.json({
                             token,
-                            player: {
-                                id: player._id,
-                                username: player.username
-                            }
+                            player
                         });
                     }
                 )
