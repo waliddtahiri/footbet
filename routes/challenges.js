@@ -8,7 +8,7 @@ router.route('/').get((req, res) => {
 });
 
 router.route('/:id').get((req, res) => {
-    Challenge.findById(req.params.id)
+    Challenge.findById(req.params.id).populate('opponent')
         .then(challenge => res.json(challenge))
         .catch(err => res.status(400).json('Error: ' + err));
 });

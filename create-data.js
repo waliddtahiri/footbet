@@ -10,7 +10,8 @@ const matches = (competitionAPI, matchday) => {
     try {
         return axios({
             method: 'get',
-            url: `http://api.football-data.org/v2/competitions/${competitionAPI}/matches/?matchday=` + matchday,
+            url: `http://api.football-data.org/v2/competitions/${competitionAPI}/matches/?matchday=`
+                + matchday,
             dataType: 'json',
             headers: { 'X-Auth-Token': '6466a049243a4bf289e2a209abfe620e' }
         })
@@ -44,7 +45,7 @@ const setCompetitionAndMatchs = async () => {
         const joueur2 = new Player();
         joueur2.username = "tony";
         joueur2.password = joueur1.generateHash("tony");
-        joueur2.coins = 99999999;
+        joueur2.coins = 99999;
 
         await joueur2.save();
 
@@ -61,8 +62,6 @@ const setCompetitionAndMatchs = async () => {
                         for (let j = 0; j < matchCount; ++j) {
                             const homeTeam = res.data.matches[j].homeTeam.name;
                             const awayTeam = res.data.matches[j].awayTeam.name;
-                            const homeScore = res.data.matches[j].score.fullTime.homeTeam;
-                            const awayScore = res.data.matches[j].score.fullTime.awayTeam;
 
                             const newMatch = new Match({
                                 homeTeam, awayTeam, homeScore: 0,

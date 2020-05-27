@@ -9,6 +9,7 @@ const playerSchema = new Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     coins: { type: Number, default: 0 },
+    admin: { type: Boolean, default: false},
     bet: [{
         type: Schema.Types.ObjectId,
         ref: 'Bet'

@@ -108,6 +108,98 @@ class Competitions extends Component {
             }
         });
 
+        let challenger = { homeScore: 3, awayScore: 0, status: "Sent", betting: 100 };
+        let challenged = { homeScore: 0, awayScore: 2, status: "Accepted", betting: 100 };
+        let match = { homeScore: 1, awayScore: 0 };
+        let d = { winner: "unknown" };
+        let player1 = { username: "walid", coins: 500 };
+        let player2 = { username: "tony", coins: 500 };
+
+        let diffChallenger = Math.abs(challenger.homeScore - challenger.awayScore);
+        let diffChallenged = Math.abs(challenged.homeScore - challenged.awayScore);
+        let diffMatch = Math.abs(match.homeScore - match.awayScore);
+
+        console.log(diffChallenger);
+        console.log(diffChallenged);
+        console.log(challenged);
+
+        if (challenged.status != "Accepted") {
+            player1.coins = player1.coins + challenger.betting;
+        } else {
+            if (challenger.homeScore == match.homeScore && challenger.awayScore == match.awayScore &&
+                challenged.homeScore == match.homeScore && challenged.awayScore == match.awayScore) {
+                d.winner = "DRAW";
+                player1.coins = player1.coins + challenger.betting * 2
+                player2.coins = player2.coins + challenged.betting * 2
+            } else if (challenged.homeScore == match.homeScore && challenged.awayScore == match.awayScore) {
+                d.winner = player2.username;
+                player2.coins = player2.coins + challenged.betting * 2
+                console.log("7")
+            } else if (challenger.homeScore == match.homeScore && challenger.awayScore == match.awayScore) {
+                d.winner = player1.username;
+                player1.coins = player1.coins + challenger.betting * 2
+                console.log("8")
+            } else if (d.winner == "unknown" && (diffChallenger == diffMatch || diffChallenged == diffMatch)) {
+                if (diffChallenger == diffMatch && diffChallenged != diffMatch) {
+                    d.winner = player1.username;
+                    player1.coins = player1.coins + challenger.betting * 2
+                    console.log("1")
+                } else if (diffChallenged == diffMatch && diffChallenger != diffMatch) {
+                    d.winner = player2.username;
+                    player2.coins = player2.coins + challenged.betting * 2
+                    console.log("2")
+                } else {
+                    d.winner = "DRAW"
+                    player1.coins = player1.coins + challenger.betting
+                    player2.coins = player2.coins + challenger.betting
+                }
+            } else if (d.winner == "unknown" && (diffChallenger != diffMatch && diffChallenged != diffMatch)) {
+                if (diffChallenger < diffChallenged) {
+                    d.winner = player1.username;
+                    player1.coins = player1.coins + challenger.betting * 2
+                } else if (diffChallenger > diffChallenged) {
+                    d.winner = player2.username;
+                    player2.coins = player2.coins + challenged.betting * 2
+                } else if (Math.abs(diffMatch - diffChallenger) == Math.abs(diffMatch - diffChallenged)) {
+                    if (Math.abs(challenger.homeScore - match.homeScore)
+                        + Math.abs(challenger.awayScore - match.awayScore) <
+                        Math.abs(challenged.homeScore - match.homeScore)
+                        + Math.abs(challenged.awayScore - match.awayScore)) {
+                        d.winner = player1.username;
+                        player1.coins = player1.coins + challenger.betting * 2
+                        console.log("3")
+                    } else if (Math.abs(challenger.homeScore - match.homeScore)
+                        + Math.abs(challenger.awayScore - match.awayScore) >
+                        Math.abs(challenged.homeScore - match.homeScore)
+                        + Math.abs(challenged.awayScore - match.awayScore)) {
+                        d.winner = player2.username;
+                        player2.coins = player2.coins + challenged.betting * 2
+                        console.log("4")
+                    } else if (Math.abs(challenger.homeScore - match.homeScore)
+                        + Math.abs(challenger.awayScore - match.awayScore) ==
+                        Math.abs(challenged.homeScore - match.homeScore)
+                        + Math.abs(challenged.awayScore - match.awayScore)) {
+                        d.winner = "DRAW"
+                        player1.coins = player1.coins + challenger.betting
+                        player2.coins = player2.coins + challenger.betting
+                    }
+                } else if (Math.abs(diffMatch - diffChallenger) > Math.abs(diffMatch - diffChallenger)) {
+                    d.winner = player2.username;
+                    player2.coins = player2.coins + challenged.betting * 2
+                    console.log("5")
+                } else if (Math.abs(diffMatch - diffChallenger) < Math.abs(diffMatch - diffChallenger)) {
+                    d.winner = player1.username;
+                    player1.coins = player1.coins + challenger.betting * 2
+                    console.log("6")
+                }
+            }
+        }
+
+
+        console.log(d)
+        console.log(player1.coins)
+        console.log(player2.coins)
+
         this.setState({
             postsSA: SA,
             postsLiga: Liga,
@@ -182,10 +274,10 @@ class Competitions extends Component {
                 await axios.get('http://localhost:5000/challenges/' + d.challenged._id).then(res => {
                     challenged = res.data
                 });
-                await axios.get('http://localhost:5000/players/player/' + challenged.opponent).then(res => {
+                await axios.get('http://localhost:5000/players/player/' + challenged.opponent._id).then(res => {
                     player1 = res.data
                 });
-                await axios.get('http://localhost:5000/players/player/' + challenger.opponent).then(res => {
+                await axios.get('http://localhost:5000/players/player/' + challenger.opponent._id).then(res => {
                     player2 = res.data
                 });
 
@@ -202,50 +294,76 @@ class Competitions extends Component {
                     await axios.delete('http://localhost:5000/duels/delete/' + duel._id);
                     await axios.put('http://localhost:5000/players/update/' + player1._id, player1);
                 } else {
-                    if (d.challenger.homeScore == d.match.homeScore && d.challenger.awayScore == d.match.awayScore) {
-                        d.winner = player1.username;
+                    if (d.challenger.homeScore == d.match.homeScore && d.challenger.awayScore == d.match.awayScore &&
+                        d.challenged.homeScore == d.match.homeScore && d.challenged.awayScore == d.match.awayScore) {
+                        d.winner = "DRAW";
                         player1.coins = player1.coins + d.challenger.betting * 2
+                        player2.coins = player2.coins + d.challenged.betting * 2
                     } else if (d.challenged.homeScore == d.match.homeScore && d.challenged.awayScore == d.match.awayScore) {
                         d.winner = player2.username;
                         player2.coins = player2.coins + d.challenged.betting * 2
-                    }
-
-                    if (diffChallenger == diffMatch || diffChallenged == diffMatch) {
+                        console.log("7")
+                    } else if (d.challenger.homeScore == d.match.homeScore && d.challenger.awayScore == d.match.awayScore) {
+                        d.winner = player1.username;
+                        player1.coins = player1.coins + d.challenger.betting * 2
+                        console.log("8")
+                    } else if (d.winner == "unknown" && (diffChallenger == diffMatch || diffChallenged == diffMatch)) {
                         if (diffChallenger == diffMatch && diffChallenged != diffMatch) {
                             d.winner = player1.username;
                             player1.coins = player1.coins + d.challenger.betting * 2
+                            console.log("1")
                         } else if (diffChallenged == diffMatch && diffChallenger != diffMatch) {
                             d.winner = player2.username;
                             player2.coins = player2.coins + d.challenged.betting * 2
+                            console.log("2")
+                        } else {
+                            d.winner = "DRAW"
+                            player1.coins = player1.coins + d.challenger.betting
+                            player2.coins = player1.coins + d.challenger.betting
                         }
-                    }
-
-                    if (diffChallenger != diffMatch && diffChallenged != diffMatch) {
-                        if (Math.abs(diffMatch - diffChallenger) < Math.abs(diffMatch - diffChallenger)) {
+                    } else if (d.winner == "unknown" && (diffChallenger != diffMatch && diffChallenged != diffMatch)) {
+                        if (diffChallenger < diffChallenged) {
                             d.winner = player1.username;
                             player1.coins = player1.coins + challenger.betting * 2
-                        } else if (Math.abs(diffMatch - diffChallenger) > Math.abs(diffMatch - diffChallenger)) {
+                        } else if (diffChallenger > diffChallenged) {
                             d.winner = player2.username;
                             player2.coins = player2.coins + challenged.betting * 2
-                        } else {
-                            if (Math.abs(d.challenger.homeScore - d.match.homeScore) <
-                                Math.abs(d.challenged.homeScore - d.match.homeScore)) {
+                        } else if (Math.abs(diffMatch - diffChallenger) == Math.abs(diffMatch - diffChallenged)) {
+                            if (Math.abs(d.challenger.homeScore - d.match.homeScore)
+                                + Math.abs(d.challenger.awayScore - d.match.awayScore) <
+                                Math.abs(d.challenged.homeScore - d.match.homeScore)
+                                + Math.abs(d.challenged.awayScore - d.match.awayScore)) {
                                 d.winner = player1.username;
-                                player1.coins = player1.coins + challenger.betting * 2
-                            } else if (Math.abs(d.challenged.homeScore - d.match.homeScore) <
-                                Math.abs(d.challenger.homeScore - d.match.homeScore)) {
+                                player1.coins = player1.coins + d.challenger.betting * 2
+                                console.log("3")
+                            } else if (Math.abs(d.challenger.homeScore - d.match.homeScore)
+                                + Math.abs(d.challenger.awayScore - d.match.awayScore) >
+                                Math.abs(d.challenged.homeScore - d.match.homeScore)
+                                + Math.abs(d.challenged.awayScore - d.match.awayScore)) {
                                 d.winner = player2.username;
-                                player2.coins = player2.coins + challenged.betting * 2
-                            } else {
+                                player2.coins = player2.coins + d.challenged.betting * 2
+                                console.log("4")
+                            } else if (Math.abs(d.challenger.homeScore - d.match.homeScore)
+                                + Math.abs(d.challenger.awayScore - d.match.awayScore) ==
+                                Math.abs(d.challenged.homeScore - d.match.homeScore)
+                                + Math.abs(d.challenged.awayScore - d.match.awayScore)) {
                                 d.winner = "DRAW"
-                                player1.coins = player1.coins + challenger.betting
-                                player2.coins = player1.coins + challenger.betting
+                                player1.coins = player1.coins + d.challenger.betting
+                                player2.coins = player1.coins + d.challenger.betting
                             }
+                        } else if (Math.abs(diffMatch - diffChallenger) > Math.abs(diffMatch - diffChallenger)) {
+                            d.winner = player2.username;
+                            player2.coins = player2.coins + d.challenged.betting * 2
+                            console.log("5")
+                        } else if (Math.abs(diffMatch - diffChallenger) < Math.abs(diffMatch - diffChallenger)) {
+                            d.winner = player1.username;
+                            player1.coins = player1.coins + d.challenger.betting * 2
+                            console.log("6")
                         }
                     }
                     await axios.put('http://localhost:5000/duels/update/' + duel._id, d);
                     await axios.put('http://localhost:5000/players/update/' + player1._id, player1);
-                    await axios.put('http://localhost:5000/players/update/' + player2._id, player1);
+                    await axios.put('http://localhost:5000/players/update/' + player2._id, player2);
                 }
             })
         }

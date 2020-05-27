@@ -62,6 +62,8 @@ class EditPost extends Component {
     }
 
     render() {
+        const {homeTeam} = this.props.post;
+        const {awayTeam} = this.props.post;
         return (
             <Modal {...this.props} centered>
                 <Modal.Header closeButton>
@@ -72,11 +74,12 @@ class EditPost extends Component {
                         <form onSubmit={this.onSubmit}>
                             <div className="errors">{this.state.msg ? <Alert variant='danger'>{this.state.msg}</Alert> : null}</div>
                             <div className="form-group">
-                                <label>Score Domicile: </label>
+                                <label>{homeTeam} : </label>
                                 <input ref="matchInput"
                                     required className="form-control" value={this.state.homeScore}
                                     onChange={this.onChangeHomeScore} />
-                                <label>Score Extérieur: </label>
+                                <br/>
+                                <label>{awayTeam} : </label>
                                 <input ref="matchInput"
                                     required className="form-control" value={this.state.awayScore}
                                     onChange={this.onChangeAwayScore} />
