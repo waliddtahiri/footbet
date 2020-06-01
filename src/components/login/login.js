@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import loginImg from "../../football-icon.jpg";
 
-import { login } from '../../actions/authActions';
+import { loginAdmin } from '../../actions/authActions';
 import { Alert } from 'react-bootstrap';
 
 import { connect } from 'react-redux';
@@ -46,11 +46,17 @@ class Login extends Component {
     }
 
     onChangeUsername(event) {
-        this.setState({ username: event.target.value });
+        this.setState({ 
+            username: event.target.value,
+            msg: null
+         });
     }
 
     onChangePassword(event) {
-        this.setState({ password: event.target.value });
+        this.setState({ 
+            password: event.target.value,
+            msg: null
+         });
     }
 
     login = () => {
@@ -65,7 +71,7 @@ class Login extends Component {
         };
 
         // attempt to login
-        this.props.login(user);
+        this.props.loginAdmin(user);
     }
 
     render() {
@@ -102,4 +108,4 @@ const mapStateToProps = state => ({
     error: state.error
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { loginAdmin })(Login);

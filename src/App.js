@@ -39,7 +39,7 @@ class App extends Component {
     const current = isLogginActive ? "Register" : "Login";
     const currentActive = isLogginActive ? "login" : "register";
     return (
-      !this.props.isAuthenticated == true ? (
+      this.props.isAuthenticated != true ? (
         <div className="App">
           <div className="login">
             <div className="container">
@@ -74,12 +74,40 @@ class App extends Component {
             </Layout>
           </div>
         )
+
+      // <div className="demo-big-content">
+      //   <Layout>
+      //     <Header title="Bienvenue Admin" scroll>
+      //       <Navigation>
+      //         <Link to="/competitions">Championnats</Link>
+      //         <Link to="/players">Joueurs</Link>
+      //         <Link to="/" onClick={this.deconnexion}>Déconnexion</Link>
+      //       </Navigation>
+      //     </Header>
+      //     <Drawer title="Bienvenue Admin">
+      //       <Navigation>
+      //         <Link to="/competitions">Championnats</Link>
+      //         <Link to="/players">Membres</Link>
+      //         <Link to="/" onClick={this.deconnexion}>Déconnexion</Link>
+      //       </Navigation>
+      //     </Drawer>
+      //     <Content>
+      //       <Route exact path="/" />
+      //       <Route path="/competitions" component={Competitions} />
+      //       <Route path="/players" component={Players} />
+      //       <Router>
+      //         <Route path="/edit/:id" component={EditPost} />
+      //       </Router>
+      //     </Content>
+      //   </Layout>
+      // </div>
     )
   }
 }
 
 const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated,
+  player: state.auth.player,
   error: state.error
 });
 

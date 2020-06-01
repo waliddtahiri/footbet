@@ -5,6 +5,9 @@ let Match = require('../models/match.model');
 
 const competitionSchema = new Schema({
     name: { type: String, required: true},
+    seasons: [{
+        type: Object
+    }],
     matchs: [{
         type: Schema.Types.ObjectId,
         ref: 'Match'

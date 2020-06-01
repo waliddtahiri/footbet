@@ -85,7 +85,39 @@ router.post('/login', (req, res) => {
             bcrypt.compare(password, player.password)
                 .then(isMatch => {
                     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
+                    jwt.sign(
+                        { id: player._id },
+                        config.get("jwtSecret"),
+                        { expiresIn: 3600 },
+                        (err, token) => {
+                            if (err) throw err;
+                            res.json({
+                                token,
+                                player
+                            });
+                        }
+                    )
+                })
+        })
 
+});
+
+router.post('/loginAdmin', (req, res) => {
+    const { body } = req;
+    let { username, password } = body;
+
+    if (!username || !password) {
+        return res.status(400).json({ msg: 'Please enter all fields' });
+    }
+
+    Player.findOne({ username })
+        .then(player => {
+            if (!player) return res.status(400).json({ msg: 'User does not exist' });
+
+            bcrypt.compare(password, player.password)
+                .then(isMatch => {
+                    if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
+                    if (player.admin == false) return res.status(400).json({ msg: 'No admin rights' });
                     jwt.sign(
                         { id: player._id },
                         config.get("jwtSecret"),

@@ -169,16 +169,16 @@ router.route('/addDuel/:id').post((req, res) => {
         })
 });
 
-router.route("/addDuelPlayer2/:id").post((req, res) => {
-    const { duel } = req.body;
+// router.route("/addDuelPlayer2/:id").post((req, res) => {
+//     const { duel } = req.body;
 
-    Player.findById(req.params.id)
-        .then(player => {
+//     Player.findById(req.params.id)
+//         .then(player => {
 
-            player.duel.push(new Duel(duel));
+//             player.duel.push(new Duel(duel));
 
-            player.save().then(p => res.json(p));
-        })
-});
+//             player.save().then(p => res.json(p));
+//         })
+// });
 
 module.exports = router;

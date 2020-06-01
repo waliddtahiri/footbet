@@ -14,6 +14,7 @@ const matchSchema = new Schema({
         required: false
     },
     matchday: { type: Number, required: false},
+    date: {type: Date, required: false},
     winner: { type: String, required: false}
 })
 

@@ -8,3 +8,11 @@
 [0419/202849.210:ERROR:scoped_process_suspend.cc(40)] NtResumeProcess: Tentative d’accès à un processus en cours d’arrêt. (0xc000010a)
 [0419/202849.194:ERROR:scoped_process_suspend.cc(40)] NtResumeProcess: Tentative d’accès à un processus en cours d’arrêt. (0xc000010a)
 [0419/202849.194:ERROR:scoped_process_suspend.cc(40)] NtResumeProcess: Tentative d’accès à un processus en cours d’arrêt. (0xc000010a)
+[0528/010912.315:ERROR:process_reader_win.cc(123)] NtOpenThread: {Accès refusé} Un processus a demandé l’accès a un objet, mais il ne bénéficie pas des autorisations nécessaires. (0xc0000022)
+[0528/010912.331:ERROR:process_reader_win.cc(123)] NtOpenThread: {Accès refusé} Un processus a demandé l’accès a un objet, mais il ne bénéficie pas des autorisations nécessaires. (0xc0000022)
+[0528/010912.315:ERROR:process_reader_win.cc(123)] NtOpenThread: {Accès refusé} Un processus a demandé l’accès a un objet, mais il ne bénéficie pas des autorisations nécessaires. (0xc0000022)
+[0528/010912.331:ERROR:process_reader_win.cc(123)] NtOpenThread: {Accès refusé} Un processus a demandé l’accès a un objet, mais il ne bénéficie pas des autorisations nécessaires. (0xc0000022)
+[0528/010912.456:ERROR:exception_snapshot_win.cc(98)] thread ID 17668 not found in process
+[0528/010912.456:ERROR:exception_snapshot_win.cc(98)] thread ID 16220 not found in process
+[0528/010912.456:ERROR:exception_snapshot_win.cc(98)] thread ID 13660 not found in process
+[0528/010912.456:ERROR:exception_snapshot_win.cc(98)] thread ID 1500 not found in process

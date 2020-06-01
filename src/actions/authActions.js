@@ -51,6 +51,31 @@ export const register = ({ username, password }) => dispatch => {
 
 }
 
+// login admin
+export const loginAdmin = ({ username, password }) => dispatch => {
+    // headers
+    const config = {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }
+
+    // request body
+    const body = JSON.stringify({ username, password });
+
+    axios.post('http://localhost:5000/auth/loginAdmin', body, config)
+        .then(res => dispatch({
+            type: LOGIN_SUCCESS,
+            payload: res.data
+        }))
+        .catch(err => {
+            dispatch(returnErrors(err.response.data, err.response.status, 'LOGIN_FAIL'));
+            dispatch({
+                type: LOGIN_FAIL
+            });
+        });
+}
+
 // login user
 export const login = ({ username, password }) => dispatch => {
     // headers

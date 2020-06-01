@@ -15,18 +15,18 @@ router.route('/:id').get((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err))
 });
 
-router.route('/add').post((req, res) => {
+// router.route('/add').post((req, res) => {
 
-    const { body } = req;
-    let { player, match, homeScore, awayScore, winner, betting} = body;
+//     const { body } = req;
+//     let { player, match, homeScore, awayScore, winner, betting} = body;
 
-    const newBet = new Bet({
-        player: player, match: match, homeScore: homeScore, awayScore: awayScore, winner: winner, betting: betting
-    });
+//     const newBet = new Bet({
+//         player: player, match: match, homeScore: homeScore, awayScore: awayScore, winner: winner, betting: betting
+//     });
 
-    newBet.save().then(() => res.json(newBet))
+//     newBet.save().then(() => res.json(newBet))
     
-});
+// });
 
 
 module.exports = router;
