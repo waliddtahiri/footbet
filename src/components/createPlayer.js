@@ -27,19 +27,22 @@ class CreatePlayer extends Component {
 
     onChangeUsername(e) {
         this.setState({
-            username: e.target.value
+            username: e.target.value,
+            msg: null
         });
     }
 
     onChangePassword(e) {
         this.setState({
-            password: e.target.value
+            password: e.target.value,
+            msg: null
         });
     }
 
     onChangeCoins(e) {
         this.setState({
-            coins: e.target.value
+            coins: e.target.value,
+            msg: null
         });
     }
 
@@ -74,7 +77,7 @@ class CreatePlayer extends Component {
                         msg: null
                     })
                 }
-            })      
+            })
     }
 
     render() {

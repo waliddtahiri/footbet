@@ -19,13 +19,15 @@ class EditPost extends Component {
 
     onChangeHomeScore(e) {
         this.setState({
-            homeScore: e.target.value
+            homeScore: e.target.value,
+            msg: null
         });
     }
 
     onChangeAwayScore(e) {
         this.setState({
-            awayScore: e.target.value
+            awayScore: e.target.value,
+            msg: null
         });
     }
 
