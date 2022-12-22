@@ -19,7 +19,7 @@
     "express": "^4.17.1",
     "insomnia": "0.0.1",
     "jquery": "^3.5.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^5.9.12",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
